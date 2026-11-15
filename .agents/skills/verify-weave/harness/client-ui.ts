@@ -2014,7 +2014,7 @@ const main = async (): Promise<number> => {
     await waitFor("grandchild placard", async () =>
       evaluate(
         cdp,
-        `document.querySelector('.sheet-parent-button')?.textContent === 'Parent Draft changes'`,
+        `document.querySelector('.sheet-parent-button')?.textContent === 'Draft changes'`,
       ),
     );
     await evaluate(cdp, `window.parentHopDialog = document.querySelector('dialog')`);
@@ -2036,10 +2036,13 @@ const main = async (): Promise<number> => {
       evaluate(
         cdp,
         `(() => {
-          const scene = window.__weaveHabitat, school = scene.school, dialog = document.querySelector('dialog');
+          const scene = window.__weaveHabitat, school = scene.school, dialog = document.querySelector('dialog'), parent = document.querySelector('.sheet-parent-button');
           return {
             title: document.querySelector('.sheet-title-button')?.textContent,
-            parent: document.querySelector('.sheet-parent-button')?.textContent,
+            parent: parent?.textContent,
+            parentLabel: parent?.getAttribute('aria-label'),
+            parentDecoration: parent === null ? undefined : getComputedStyle(parent).textDecorationLine,
+            parentUnderlineOffset: parent === null ? undefined : getComputedStyle(parent).textUnderlineOffset,
             specimen: scene.specimenWindow?.key,
             selected: [...school.bodies.values()].filter(body => body.slot >= 0 && school.buckets[body.bucket].emphasis[body.slot] === 1).map(body => body.key),
             focused: document.activeElement === dialog,
@@ -2059,10 +2062,13 @@ const main = async (): Promise<number> => {
       "drawer",
       "pointer-selects-immediate-parent",
       immediateParent.title === "Draft changes" &&
-        immediateParent.parent === "Parent Release notes" &&
+        immediateParent.parent === "Release notes" &&
+        immediateParent.parentLabel === "Go to parent session: Release notes" &&
+        immediateParent.parentDecoration === "underline" &&
+        immediateParent.parentUnderlineOffset === "2px" &&
         immediateParent.focused &&
         immediateParent.retained,
-      "a native pointer click selects the immediate parent, updates the specimen and keeps focus in the same dialog",
+      "a native pointer click selects the immediate parent, shows its underlined parent title with an accessible navigation label, updates the specimen and keeps focus in the same dialog",
       JSON.stringify(immediateParent),
     );
     await screenshot(cdp, "parent-selected");

@@ -31,7 +31,7 @@ and upstream recovery keeps the last school without a transport notice.
   species.
 - `drawer` selects a real child, checks its source, basename, status, and
   focus-only path tooltip, and copies its exact context through the native title
-  button. Its Parent button selects the immediate known parent by click, Enter,
+  button. Its underlined parent title selects the immediate known parent by click, Enter,
   or Space. Roots and sessions without a known parent omit the row.
   The fixed mobile sheet preserves the canvas and camera, and closes
   with Escape or an outside tap. Shared near-black and stone theme tokens
@@ -100,7 +100,7 @@ and upstream recovery keeps the last school without a transport notice.
   another animal to update the same placard. On desktop, a faint leader connects
   the fixed crop to the selected animal. Mobile retains the fixed bottom sheet
   without introducing a magnifier layout.
-  Click **Parent &lt;title&gt;** below the folder and status to inspect the immediate
+  Click the underlined parent title below the folder and status to inspect the immediate
   known parent. Tab reaches the same button for Enter or Space activation.
   The selected animal and specimen change without moving the camera.
   Escape still restores the control that originally opened the placard.
@@ -176,7 +176,9 @@ readable.
   desktop click or mobile tap closes the placard. The sheet fits the viewport
   without horizontal overflow.
   Native pointer and Enter activation follow Collect changelog to Draft changes,
-  then Release notes. The root has no Parent row. Native Space activation follows
+  then Release notes. The parent button shows only the underlined title and has
+  the accessible name `Go to parent session: <title>`. The root has no parent row.
+  Native Space activation follows
   Trace slow card auth to Checkout regression on mobile without changing the
   canvas or camera. Each hop retains the dialog and focuses it. Escape restores
   the original opener after either journey.

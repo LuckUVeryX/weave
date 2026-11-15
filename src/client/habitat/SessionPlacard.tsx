@@ -182,12 +182,13 @@ export function SessionPlacard({
             <button
               type="button"
               className="sheet-parent-button"
+              aria-label={`Go to parent session: ${parent.title}`}
               onClick={() => {
                 dialogRef.current?.focus({ preventScroll: true });
                 parent.onSelect();
               }}
             >
-              Parent {parent.title}
+              {parent.title}
             </button>
           )}
           <div className="sheet-provenance">
