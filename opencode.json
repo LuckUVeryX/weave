@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "references": {
+    "opencode": {
+      "repository": "anomalyco/opencode",
+      "branch": "dev",
+      "description": "Use for OpenCode V2 source: HTTP API, client, server, TUI, and permission forms"
+    }
+  }
+}

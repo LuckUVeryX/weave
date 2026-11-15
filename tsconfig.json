@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "noErrorTruncation": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["bun", "vite/client"],
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "diagnostics": false,
+        "allowedUnstableApis": [
+          "@effect/atom-react",
+          "@effect/platform-bun",
+          "@effect/vitest",
+          "effect/http",
+          "effect/reactivity",
+          "effect/rpc"
+        ]
+      }
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx",
+    "scripts/**/*.ts",
+    ".agents/skills/verify-weave/harness/**/*.ts",
+    "vite.config.ts"
+  ],
+  "exclude": ["node_modules", "dist", ".worktrees", "coverage"]
+}
