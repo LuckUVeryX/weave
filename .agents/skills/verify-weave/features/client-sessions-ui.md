@@ -31,7 +31,9 @@ and upstream recovery keeps the last school without a transport notice.
   species.
 - `drawer` selects a real child, checks its source, basename, status, and
   focus-only path tooltip, and copies its exact context through the native title
-  button. The fixed mobile sheet preserves the canvas and camera, and closes
+  button. Its Parent button selects the immediate known parent by click, Enter,
+  or Space. Roots and sessions without a known parent omit the row.
+  The fixed mobile sheet preserves the canvas and camera, and closes
   with Escape or an outside tap. Shared near-black and stone theme tokens
   provide at least 4.5:1 text contrast.
 - `specimen` checks one nonmodal 340px placard at 1280, 1440, and 1920 desktop
@@ -98,6 +100,10 @@ and upstream recovery keeps the last school without a transport notice.
   another animal to update the same placard. On desktop, a faint leader connects
   the fixed crop to the selected animal. Mobile retains the fixed bottom sheet
   without introducing a magnifier layout.
+  Click **Parent &lt;title&gt;** below the folder and status to inspect the immediate
+  known parent. Tab reaches the same button for Enter or Space activation.
+  The selected animal and specimen change without moving the camera.
+  Escape still restores the control that originally opened the placard.
 - Water cycles through cyan, royal blue, violet, and pale mint over 160 seconds.
   Reduced motion freezes its palette. Running sessions have a cool internal glow.
   Questions glow amber and permissions glow coral. Selection adds an edge glow
@@ -169,6 +175,11 @@ readable.
   leaves title and panel bounds unchanged. Escape restores focus. An outside
   desktop click or mobile tap closes the placard. The sheet fits the viewport
   without horizontal overflow.
+  Native pointer and Enter activation follow Collect changelog to Draft changes,
+  then Release notes. The root has no Parent row. Native Space activation follows
+  Trace slow card auth to Checkout regression on mobile without changing the
+  canvas or camera. Each hop retains the dialog and focuses it. Escape restores
+  the original opener after either journey.
 - **Lifecycle.** The helper applies `delete` and observes one departing animal,
   then six animals and no departing animal. It applies `current` again and
   proves seven present animals, at least five retained keys within 0.6 world
@@ -227,6 +238,8 @@ readable.
   `source-tap-mobile.png`, `source-sheet-mobile.png`,
   `source-transport-mobile.png`, and `source-controls.json`. The crowded sample
   records both selected and closed results in `crowded-frame-sample.json`.
+  The drawer scenario adds `parent-child.png`, `parent-selected.png`, and
+  `parent-navigation.json`.
 
 ## Gotchas
 

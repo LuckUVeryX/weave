@@ -2004,6 +2004,103 @@ const main = async (): Promise<number> => {
       "clicking empty water dismisses the desktop placard",
     );
 
+    await evaluate(
+      cdp,
+      `(() => {
+        const opener = [...document.querySelectorAll('[aria-label="Sessions"] button')].find(button => button.textContent.startsWith('Collect changelog,'));
+        opener.focus(); opener.click();
+      })()`,
+    );
+    await waitFor("grandchild placard", async () =>
+      evaluate(
+        cdp,
+        `document.querySelector('.sheet-parent-button')?.textContent === 'Parent Draft changes'`,
+      ),
+    );
+    await evaluate(cdp, `window.parentHopDialog = document.querySelector('dialog')`);
+    await screenshot(cdp, "parent-child");
+    const parentBounds = await evaluate(
+      cdp,
+      `document.querySelector('.sheet-parent-button').getBoundingClientRect().toJSON()`,
+    );
+    for (const type of ["mousePressed", "mouseReleased"]) {
+      await cdp.send("Input.dispatchMouseEvent", {
+        type,
+        x: parentBounds.x + parentBounds.width / 2,
+        y: parentBounds.y + parentBounds.height / 2,
+        button: "left",
+        clickCount: 1,
+      });
+    }
+    const parentState = () =>
+      evaluate(
+        cdp,
+        `(() => {
+          const scene = window.__weaveHabitat, school = scene.school, dialog = document.querySelector('dialog');
+          return {
+            title: document.querySelector('.sheet-title-button')?.textContent,
+            parent: document.querySelector('.sheet-parent-button')?.textContent,
+            specimen: scene.specimenWindow?.key,
+            selected: [...school.bodies.values()].filter(body => body.slot >= 0 && school.buckets[body.bucket].emphasis[body.slot] === 1).map(body => body.key),
+            focused: document.activeElement === dialog,
+            retained: dialog === window.parentHopDialog
+          };
+        })()`,
+      );
+    await waitFor("pointer selects immediate parent", async () => {
+      const state = await parentState();
+      return (
+        state.specimen === "local:ses_harbor_mid" &&
+        state.selected.join() === "local:ses_harbor_mid"
+      );
+    });
+    const immediateParent = await parentState();
+    assert(
+      "drawer",
+      "pointer-selects-immediate-parent",
+      immediateParent.title === "Draft changes" &&
+        immediateParent.parent === "Parent Release notes" &&
+        immediateParent.focused &&
+        immediateParent.retained,
+      "a native pointer click selects the immediate parent, updates the specimen and keeps focus in the same dialog",
+      JSON.stringify(immediateParent),
+    );
+    await screenshot(cdp, "parent-selected");
+    await evaluate(cdp, `document.querySelector('.sheet-parent-button').focus()`);
+    for (const type of ["keyDown", "keyUp"]) {
+      await cdp.send("Input.dispatchKeyEvent", {
+        type,
+        key: "Enter",
+        code: "Enter",
+        windowsVirtualKeyCode: 13,
+        ...(type === "keyDown" ? { text: "\r", unmodifiedText: "\r" } : {}),
+      });
+    }
+    await waitFor("Enter selects root parent", async () => {
+      const state = await parentState();
+      return state.specimen === "local:ses_harbor" && state.selected.join() === "local:ses_harbor";
+    });
+    const rootParent = await parentState();
+    assert(
+      "drawer",
+      "enter-selects-parent-and-root-omits-row",
+      rootParent.title === "Release notes" &&
+        rootParent.parent === undefined &&
+        rootParent.focused &&
+        rootParent.retained,
+      "native Enter selects the root parent and removes the entire parent row without losing dialog focus",
+      JSON.stringify(rootParent),
+    );
+    writeJson("parent-navigation.json", { immediateParent, rootParent });
+    await escape(cdp);
+    await waitFor("parent navigation closes", async () => !(await habitat(cdp))?.drawer);
+    assert(
+      "drawer",
+      "parent-hop-escape-restores-original-opener",
+      await evaluate(cdp, `document.activeElement?.textContent.startsWith('Collect changelog,')`),
+      "Escape after two parent hops restores the original grandchild opener",
+    );
+
     await cdp.send("Emulation.setDeviceMetricsOverride", {
       width: 390,
       height: 844,
@@ -2031,6 +2128,50 @@ const main = async (): Promise<number> => {
       "mobile-escape-dismisses-without-resize",
       JSON.stringify(closed) === JSON.stringify(await geometry()),
       "Escape dismisses the mobile sheet without changing the canvas or camera",
+    );
+    await openTrace();
+    await evaluate(
+      cdp,
+      `window.parentHopDialog = document.querySelector('dialog'); document.querySelector('.sheet-parent-button').focus()`,
+    );
+    for (const type of ["keyDown", "keyUp"]) {
+      await cdp.send("Input.dispatchKeyEvent", {
+        type,
+        key: " ",
+        code: "Space",
+        windowsVirtualKeyCode: 32,
+        ...(type === "keyDown" ? { text: " ", unmodifiedText: " " } : {}),
+      });
+    }
+    await waitFor("Space selects mobile parent", async () => {
+      const state = await parentState();
+      return (
+        state.specimen === "local:ses_payments" && state.selected.join() === "local:ses_payments"
+      );
+    });
+    const mobileParent = await parentState();
+    assert(
+      "drawer",
+      "space-selects-parent-without-mobile-camera-change",
+      mobileParent.title === "Checkout regression" &&
+        mobileParent.parent === undefined &&
+        mobileParent.focused &&
+        mobileParent.retained &&
+        JSON.stringify(closed) === JSON.stringify(await geometry()),
+      "native Space selects the mobile parent and specimen without changing canvas bounds, drawing buffer or camera matrices",
+      JSON.stringify(mobileParent),
+    );
+    writeJson("parent-navigation.json", { immediateParent, rootParent, mobileParent });
+    await escape(cdp);
+    await waitFor("mobile parent closes", async () => !(await habitat(cdp))?.drawer);
+    assert(
+      "drawer",
+      "mobile-parent-escape-restores-original-opener",
+      await evaluate(
+        cdp,
+        `document.activeElement?.textContent.startsWith('Trace slow card auth,')`,
+      ),
+      "Escape after a mobile parent hop restores the original child opener",
     );
     await openTrace();
     const before = await evaluate(

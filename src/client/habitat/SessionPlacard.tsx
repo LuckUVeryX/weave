@@ -53,12 +53,14 @@ const relativeTime = (updated: number, now: number): string => {
 
 export function SessionPlacard({
   item,
+  parent,
   portraitRef,
   onClose,
   onToast,
   toast,
 }: {
   readonly item: CreatureModel;
+  readonly parent: { readonly title: string; readonly onSelect: () => void } | undefined;
   readonly portraitRef: RefObject<HTMLDivElement | null>;
   readonly onClose: () => void;
   readonly onToast: (message: string) => void;
@@ -176,6 +178,18 @@ export function SessionPlacard({
               )}
             </span>
           </div>
+          {parent === undefined ? null : (
+            <button
+              type="button"
+              className="sheet-parent-button"
+              onClick={() => {
+                dialogRef.current?.focus({ preventScroll: true });
+                parent.onSelect();
+              }}
+            >
+              Parent {parent.title}
+            </button>
+          )}
           <div className="sheet-provenance">
             <span className="context-source" title={`Source ${item.sourceID}`}>
               {item.sourceID}
