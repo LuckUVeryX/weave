@@ -2004,6 +2004,35 @@ const main = async (): Promise<number> => {
       "clicking empty water dismisses the desktop placard",
     );
 
+    await evaluate(
+      cdp,
+      `[...document.querySelectorAll('[aria-label="Sessions"] button')].find(button => button.textContent.startsWith('Collect changelog,')).click()`,
+    );
+    await waitFor("grandchild placard", async () =>
+      evaluate(
+        cdp,
+        `document.querySelector('.sheet-parent-button')?.textContent === 'Draft changes'`,
+      ),
+    );
+    await evaluate(cdp, `document.querySelector('.sheet-parent-button').click()`);
+    await waitFor("immediate parent title and specimen", async () =>
+      evaluate(
+        cdp,
+        `document.querySelector('.sheet-title-button')?.textContent === 'Draft changes' && window.__weaveHabitat.specimenWindow?.key === 'local:ses_harbor_mid'`,
+      ),
+    );
+    assert(
+      "drawer",
+      "selects-immediate-parent",
+      await evaluate(
+        cdp,
+        `document.querySelector('.sheet-title-button')?.textContent === 'Draft changes' && document.querySelector('.sheet-parent-button')?.textContent === 'Release notes'`,
+      ),
+      "parent navigation selects Draft changes with Release notes as its next parent",
+    );
+    await escape(cdp);
+    await waitFor("parent navigation closes", async () => !(await habitat(cdp))?.drawer);
+
     await cdp.send("Emulation.setDeviceMetricsOverride", {
       width: 390,
       height: 844,

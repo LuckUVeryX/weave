@@ -89,6 +89,10 @@ export function Habitat({ model, state }: Props) {
   }, [model]);
 
   const view = presentation(interaction, creatures);
+  const parent =
+    view.kind === "inspecting" && view.creature.parentKey !== undefined
+      ? creatures.get(view.creature.parentKey)
+      : undefined;
   const openedKey = view.kind === "inspecting" ? view.creature.key : undefined;
   const previewKey = view.kind === "preview" ? view.creature.key : undefined;
   const pointerTarget =
@@ -203,6 +207,14 @@ export function Habitat({ model, state }: Props) {
       {view.kind !== "inspecting" ? null : (
         <SessionPlacard
           item={view.creature}
+          parent={
+            parent === undefined
+              ? undefined
+              : {
+                  title: parent.session.title || "Untitled session",
+                  onSelect: () => dispatch({ kind: "toggle", key: parent.key }),
+                }
+          }
           portraitRef={portraitRef}
           onClose={() => dispatch({ kind: "close" })}
           onToast={feedback.show}

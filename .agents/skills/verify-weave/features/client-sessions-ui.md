@@ -98,6 +98,7 @@ and upstream recovery keeps the last school without a transport notice.
   another animal to update the same placard. On desktop, a faint leader connects
   the fixed crop to the selected animal. Mobile retains the fixed bottom sheet
   without introducing a magnifier layout.
+  Click the underlined parent title to select the immediate parent.
 - Water cycles through cyan, royal blue, violet, and pale mint over 160 seconds.
   Reduced motion freezes its palette. Running sessions have a cool internal glow.
   Questions glow amber and permissions glow coral. Selection adds an edge glow
