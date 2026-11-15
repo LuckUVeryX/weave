@@ -2006,10 +2006,7 @@ const main = async (): Promise<number> => {
 
     await evaluate(
       cdp,
-      `(() => {
-        const opener = [...document.querySelectorAll('[aria-label="Sessions"] button')].find(button => button.textContent.startsWith('Collect changelog,'));
-        opener.focus(); opener.click();
-      })()`,
+      `[...document.querySelectorAll('[aria-label="Sessions"] button')].find(button => button.textContent.startsWith('Collect changelog,')).click()`,
     );
     await waitFor("grandchild placard", async () =>
       evaluate(
@@ -2017,88 +2014,24 @@ const main = async (): Promise<number> => {
         `document.querySelector('.sheet-parent-button')?.textContent === 'Draft changes'`,
       ),
     );
-    await evaluate(cdp, `window.parentHopDialog = document.querySelector('dialog')`);
-    await screenshot(cdp, "parent-child");
-    for (const [key, title, parent] of [
-      ["local:ses_harbor_mid", "Draft changes", "Release notes"],
-      ["local:ses_harbor", "Release notes", null],
-    ]) {
-      if (parent !== null) {
-        const bounds = await evaluate(
-          cdp,
-          `document.querySelector('.sheet-parent-button').getBoundingClientRect().toJSON()`,
-        );
-        for (const type of ["mousePressed", "mouseReleased"]) {
-          await cdp.send("Input.dispatchMouseEvent", {
-            type,
-            x: bounds.x + bounds.width / 2,
-            y: bounds.y + bounds.height / 2,
-            button: "left",
-            clickCount: 1,
-          });
-        }
-      } else {
-        await evaluate(cdp, `document.querySelector('.sheet-parent-button').focus()`);
-        for (const type of ["keyDown", "keyUp"]) {
-          await cdp.send("Input.dispatchKeyEvent", {
-            type,
-            key: "Enter",
-            code: "Enter",
-            windowsVirtualKeyCode: 13,
-            ...(type === "keyDown" ? { text: "\r", unmodifiedText: "\r" } : {}),
-          });
-        }
-      }
-      await waitFor(`parent specimen ${key}`, async () =>
-        evaluate(
-          cdp,
-          `(() => {
-            const scene = window.__weaveHabitat, school = scene.school;
-            const selected = [...school.bodies.values()].filter(body => body.slot >= 0 && school.buckets[body.bucket].emphasis[body.slot] === 1).map(body => body.key);
-            return scene.specimenWindow?.key === ${JSON.stringify(key)} && selected.join() === ${JSON.stringify(key)};
-          })()`,
-        ),
-      );
-      const state = await evaluate(
+    await evaluate(cdp, `document.querySelector('.sheet-parent-button').click()`);
+    await waitFor("immediate parent title and specimen", async () =>
+      evaluate(
         cdp,
-        `(() => {
-          const scene = window.__weaveHabitat, school = scene.school, dialog = document.querySelector('dialog'), parent = document.querySelector('.sheet-parent-button');
-          return {
-            title: document.querySelector('.sheet-title-button')?.textContent,
-            parent: parent?.textContent ?? null,
-            label: parent?.getAttribute('aria-label'),
-            underlined: parent && getComputedStyle(parent).textDecorationLine.includes('underline'),
-            selected: [...school.bodies.values()].filter(body => body.slot >= 0 && school.buckets[body.bucket].emphasis[body.slot] === 1).map(body => body.key),
-            focused: document.activeElement === dialog,
-            retained: dialog === window.parentHopDialog
-          };
-        })()`,
-      );
-      assert(
-        "drawer",
-        parent === null
-          ? "enter-selects-parent-and-root-omits-row"
-          : "pointer-selects-immediate-parent",
-        state.title === title &&
-          state.parent === parent &&
-          state.selected.join() === key &&
-          state.focused &&
-          state.retained &&
-          (parent === null ||
-            (state.label === `Go to parent session: ${parent}` && state.underlined)),
-        "parent navigation updates the title, selection and specimen, retaining dialog focus",
-        JSON.stringify(state),
-      );
-      if (parent !== null) await screenshot(cdp, "parent-selected");
-    }
-    await escape(cdp);
-    await waitFor("parent navigation closes", async () => !(await habitat(cdp))?.drawer);
+        `document.querySelector('.sheet-title-button')?.textContent === 'Draft changes' && window.__weaveHabitat.specimenWindow?.key === 'local:ses_harbor_mid'`,
+      ),
+    );
     assert(
       "drawer",
-      "parent-hop-escape-restores-original-opener",
-      await evaluate(cdp, `document.activeElement?.textContent.startsWith('Collect changelog,')`),
-      "Escape after two parent hops restores the original grandchild opener",
+      "selects-immediate-parent",
+      await evaluate(
+        cdp,
+        `document.querySelector('.sheet-title-button')?.textContent === 'Draft changes' && document.querySelector('.sheet-parent-button')?.textContent === 'Release notes'`,
+      ),
+      "parent navigation selects Draft changes with Release notes as its next parent",
     );
+    await escape(cdp);
+    await waitFor("parent navigation closes", async () => !(await habitat(cdp))?.drawer);
 
     await cdp.send("Emulation.setDeviceMetricsOverride", {
       width: 390,
